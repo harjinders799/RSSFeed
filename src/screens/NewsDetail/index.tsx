@@ -1,9 +1,10 @@
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     FlatList,
     Linking,
+    RefreshControl,
     SafeAreaView,
     StyleSheet,
     Text,
@@ -19,20 +20,25 @@ const NewsDetailScreen = (props: INavProps) => {
 
     const navigation = useNavigation();
     const [newsData, setNewsData] = useState<any>(null);
+    const [refreshing, setRefreshing] = useState<boolean>(true);
     const { categoryUrl, type } = props?.route?.params?.item;
     useEffect(() => {
-        (async () => {
-            //get news feed 
-            const getNewsData: any = await getNews(categoryUrl);
-            // sort by time the news feed 
-            const sortedData = _.orderBy(getNewsData.items, function (o: any) {
-                return moment(o.published)
-            }, ['desc']);
-            setNewsData(sortedData)
-        })();
-    }, []);
+        if (refreshing) {
+            _news_data();
+        };
+    }, [refreshing]);
 
 
+    async function _news_data() {
+        //get news feed 
+        const getNewsData: any = await getNews(categoryUrl);
+        // sort by time the news feed 
+        const sortedData = _.orderBy(getNewsData.items, function (o: any) {
+            return moment(o.published)
+        }, ['desc']);
+        setNewsData(sortedData);
+        setRefreshing(false);
+    }
     const renderData = ({ item }: any) => (
         <ItemData
             key={item.title}
@@ -81,8 +87,15 @@ const NewsDetailScreen = (props: INavProps) => {
             </Text>
         </TouchableOpacity>
     );
-
-
+    // pull to refresh time
+    const wait = (timeout: number) => {
+        return new Promise(resolve => setTimeout(resolve, timeout));
+    }
+    //pull to refresh
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        wait(2000).then(() => setRefreshing(false));
+    }, []);
     return (
         <SafeAreaView style={styles.container}>
             <Text style={styles.header}>
@@ -96,6 +109,13 @@ const NewsDetailScreen = (props: INavProps) => {
                     renderItem={renderData}
                     keyExtractor={(item) => item.title}
                     showsVerticalScrollIndicator={false}
+
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                        />
+                    }
                 />
                 :
                 <ActivityIndicator color={colors.black} size={30} />
