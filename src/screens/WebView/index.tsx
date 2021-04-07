@@ -12,6 +12,7 @@ const WebViewScreen = (props: INavProps) => {
     // fetch url link from props
     const { newsLink } = props?.route?.params;
 
+    // render main screen
     return (
         <SafeAreaView
             style={styles.container}>

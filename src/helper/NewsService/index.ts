@@ -17,5 +17,3 @@ export const getNews = async (link: string) => {
     });
 }
 
-
-

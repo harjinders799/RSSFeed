@@ -2,6 +2,7 @@ import moment from 'moment';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
     ActivityIndicator,
+    Alert,
     FlatList,
     Linking,
     RefreshControl,
@@ -31,13 +32,21 @@ const NewsDetailScreen = (props: INavProps) => {
 
     async function _news_data() {
         //get news feed 
-        const getNewsData: any = await getNews(categoryUrl);
-        // sort by time the news feed 
-        const sortedData = _.orderBy(getNewsData.items, function (o: any) {
-            return moment(o.published)
-        }, ['desc']);
-        setNewsData(sortedData);
-        setRefreshing(false);
+        await getNews(categoryUrl).then((result: any) => {
+            // sort by time the news feed 
+            const sortedData = _.orderBy(result.items, function (o: any) {
+                return moment(o.published)
+            }, ['desc']);
+            setNewsData(sortedData);
+            setRefreshing(false);
+        }, //if got any error
+            error => {
+                console.log("Error fetching news error {", error, "}");
+                // get error then stop loader 
+                setRefreshing(false);
+                Alert.alert('Something went wrong please again try later');
+            }
+        )
     }
     const renderData = ({ item }: any) => (
         <ItemData
@@ -96,13 +105,15 @@ const NewsDetailScreen = (props: INavProps) => {
         setRefreshing(true);
         wait(2000).then(() => setRefreshing(false));
     }, []);
+
+    // render main screen
     return (
         <SafeAreaView style={styles.container}>
             <Text style={styles.header}>
                 {type} News
             </Text>
             {/* load news fees after fetch the news feed otherwise show loader */}
-            {newsData ?
+            {newsData || !refreshing ?
                 <FlatList
                     style={styles.flatlist}
                     data={newsData}

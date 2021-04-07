@@ -20,7 +20,7 @@ const HomeScreen = (props: INavProps) => {
             type={item.type}
             description={item.description}
             onPress={() => {
-                // pass props all data of news category
+                // pass all data of news category to next screen
                 navigation.navigate("NewsDetail", { item });
             }}
         />
@@ -41,7 +41,7 @@ const HomeScreen = (props: INavProps) => {
         </TouchableOpacity>
     );
 
-
+    // render main screen
     return (
         <SafeAreaView style={styles.container}>
             <Text style={styles.header}>
@@ -51,7 +51,7 @@ const HomeScreen = (props: INavProps) => {
             {/* render news categories list */}
             <FlatList
                 data={NewsCategory}
-                renderItem={renderCategory}
+                renderItem={renderCategory} // call renderCategory method to show the list of categories
                 keyExtractor={(item) => item.type}
                 showsVerticalScrollIndicator={false}
                 numColumns={2}

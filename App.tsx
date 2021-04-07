@@ -16,7 +16,9 @@ import Navigation from './src/navigation';
 export default function App() {
   return (
     <SafeAreaProvider>
-    <StatusBar barStyle='light-content' backgroundColor={'black'} />
+      {/* status bar  */}
+      <StatusBar barStyle='light-content' backgroundColor={'black'} />
+      {/* render screens by navigation */}
       <Navigation />
     </SafeAreaProvider>
   );
